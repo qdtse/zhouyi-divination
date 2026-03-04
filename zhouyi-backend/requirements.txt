@@ -7,3 +7,4 @@ ichingshifa>=0.1.5
 strokes==0.0.1
 ephem>=4.1.0
 numpy>=1.24.0
+sxtwl>=1.1.3
