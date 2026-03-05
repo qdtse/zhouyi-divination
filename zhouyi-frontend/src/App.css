@@ -378,7 +378,10 @@ textarea.input {
   background: linear-gradient(135deg, rgba(250, 245, 235, 0.9) 0%, rgba(245, 240, 230, 0.9) 100%);
   border: 1px solid rgba(139, 0, 0, 0.1);
   max-height: 300px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-wrap: break-word;
   font-family: 'Courier New', monospace;
   font-size: 0.85rem;
   line-height: 1.6;

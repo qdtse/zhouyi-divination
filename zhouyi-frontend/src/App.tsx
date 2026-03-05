@@ -160,6 +160,61 @@ function App() {
     }
   }, [lang])
 
+  function formatResult(key: string, data: any): string {
+    if (typeof data !== 'object' || data === null) {
+      return String(data)
+    }
+    
+    // Zhuge Shenshu formatting
+    if (key === 'zhuge' || data.type === 'zhuge') {
+      const lines = []
+      if (data.poem) lines.push(`【签诗】${data.poem}`)
+      if (data.explain) lines.push(`\n【解签】${data.explain}`)
+      if (data.poem_en && lang !== 'zh') lines.push(`\n[English Poem] ${data.poem_en}`)
+      if (data.explain_en && lang !== 'zh') lines.push(`[Explanation] ${data.explain_en}`)
+      return lines.join('\n') || JSON.stringify(data, null, 2)
+    }
+    
+    // Text/Meihua divination formatting
+    if (key === 'text' || key === 'pair' || key === 'random' || key === 'current' || 
+        data.type === 'hexagram' || data.ben_gua) {
+      const lines = []
+      if (data.ben_gua) lines.push(`【本卦】${data.ben_gua}` + (data.ben_gua_en ? ` (${data.ben_gua_en})` : ''))
+      if (data.zhi_gua) lines.push(`【之卦】${data.zhi_gua}` + (data.zhi_gua_en ? ` (${data.zhi_gua_en})` : ''))
+      if (data.summary) lines.push(`\n【卦象】${data.summary}`)
+      if (data.main_text) lines.push(`\n【主爻】${data.main_text}`)
+      if (data.ben_gua_text) lines.push(`\n【卦辞】${data.ben_gua_text}`)
+      if (data.main_text_en && lang !== 'zh') lines.push(`\n[Main Text] ${data.main_text_en}`)
+      return lines.join('\n') || JSON.stringify(data, null, 2)
+    }
+    
+    // Bazi analysis formatting
+    if (key === 'bazi' || data.type === 'bazi') {
+      const lines = []
+      if (data.solar_date) lines.push(`【阳历】${data.solar_date}`)
+      if (data.lunar_date) lines.push(`【阴历】${data.lunar_date}`)
+      if (data.bazi) lines.push(`\n【八字】${data.bazi}`)
+      if (data.wuxing_count) lines.push(`\n【五行】${JSON.stringify(data.wuxing_count)}`)
+      if (data.day_master) lines.push(`【日主】${data.day_master}`)
+      if (data.strength) lines.push(`【日主强弱】${data.strength}`)
+      if (data.missing_wuxing) lines.push(`【缺失五行】${data.missing_wuxing}`)
+      return lines.join('\n') || JSON.stringify(data, null, 2)
+    }
+    
+    // Marriage match formatting
+    if (key === 'match' || data.type === 'match') {
+      const lines = []
+      if (data.compatibility) lines.push(`【合婚指数】${data.compatibility}`)
+      if (data.score !== undefined) lines.push(`【匹配分数】${data.score}/100`)
+      if (data.male_bazi) lines.push(`\n【男方八字】${data.male_bazi}`)
+      if (data.female_bazi) lines.push(`【女方八字】${data.female_bazi}`)
+      if (data.analysis) lines.push(`\n【分析】${data.analysis}`)
+      return lines.join('\n') || JSON.stringify(data, null, 2)
+    }
+    
+    return JSON.stringify(data, null, 2)
+  }
+
   async function callApi(
     key: string,
     path: string,
@@ -167,14 +222,14 @@ function App() {
   ) {
     setLoadingKey(key)
     try {
-      const res = await fetch(`${API_BASE || ''}/api/divine${path}`, {
+      const res = await fetch(`${API_BASE || ''}/divine${path}`, {
         headers: {
           'Content-Type': 'application/json',
         },
         ...options,
       })
       const data = await res.json()
-      const pretty = typeof data === 'string' ? data : JSON.stringify(data, null, 2)
+      const pretty = formatResult(key, data)
       setResults((prev) => ({ ...prev, [key]: pretty }))
     } catch (e: any) {
       setResults((prev) => ({
@@ -221,6 +276,7 @@ function App() {
           <p className="card-desc">{t.textDesc}</p>
           <textarea
             className="input"
+            id="text-input"
             rows={3}
             placeholder={t.textPlaceholder}
             onBlur={(e) => {
@@ -250,11 +306,6 @@ function App() {
           >
             {loadingKey === 'text' ? '···' : t.textButton}
           </button>
-          <textarea
-            id="text-input"
-            style={{ display: 'none' }}
-            aria-hidden="true"
-          />
           {results.text && (
             <pre className="result-block">
               <span className="result-label">{t.resultLabel}</span>

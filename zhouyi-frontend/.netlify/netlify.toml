@@ -10,6 +10,7 @@ headers = []
 publish = "C:\\Users\\sugar\\CascadeProjects\\zhouyi-frontend\\dist"
 publishOrigin = "ui"
 commandOrigin = "ui"
+base = "C:\\Users\\sugar\\CascadeProjects\\zhouyi-frontend"
 command = "npm run build"
 
 [build.environment]
